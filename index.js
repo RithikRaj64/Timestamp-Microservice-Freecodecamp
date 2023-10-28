@@ -29,18 +29,39 @@ let obj = {};
 app.get("/api/:input", (req, res) => {
   dateInput = req.params.input;
 
-  if (dateInput.includes('-')) {
+  try {
     obj.unix = new Date(dateInput).getTime();
     obj.utc = new Date(dateInput).toUTCString();
-  } else {
-    obj.unix = new Date(parseInt(dateInput)).getTime();
-    obj.utc = new Date(parseInt(dateInput)).toUTCString();
+
+    if (!obj.unix || !obj.utc) {
+      throw new Error("Invalid Date");
+    }
+
+    res.json(obj);
+    return;
+  } catch (e) {
+    try {
+      obj.unix = new Date(parseInt(dateInput)).getTime();
+      obj.utc = new Date(parseInt(dateInput)).toUTCString();
+
+      if (!obj.unix || !obj.utc) {
+        throw new Error("Invalid Date");
+      }
+
+      res.json(obj);
+      return;
+    }
+    catch (e) {
+      res.json({ error: "Invalid Date" });
+    }
   }
 
-  if (!obj.unix || !obj.utc) {
-    res.json({ error: "Invalid Date" });
-  }
+  res.json(obj);
+})
 
+app.get("/api", (req, res) => {
+  obj.unix = new Date().getTime();
+  obj.utc = new Date().toUTCString();
   res.json(obj);
 })
 
